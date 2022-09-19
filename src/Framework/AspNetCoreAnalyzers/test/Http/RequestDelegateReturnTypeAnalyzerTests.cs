@@ -3,54 +3,9 @@
 
 namespace Microsoft.AspNetCore.Analyzers.Http;
 
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Analyzer.Testing;
-using Microsoft.CodeAnalysis;
 using System.Globalization;
-
-public class sdfsdf
-{
-    public void sdfsdfss()
-    {
-        var webApp = WebApplication.Create();
-        webApp.MapGet("/", async (HttpContext context) =>
-        {
-            await Task.Yield();
-            return "hello world";
-        });
-        webApp.MapGet("/", async (HttpContext context) =>
-        {
-            return await context.Request.ReadFromJsonAsync<object>();
-        });
-        webApp.MapGet("/", (HttpContext context) =>
-        {
-            return context.Request.ReadFromJsonAsync<object>().AsTask();
-        });
-        webApp.Use(next =>
-        {
-            return new RequestDelegate((HttpContext context) =>
-            {
-                next(context).Wait();
-                return Task.FromResult("hello world");
-            });
-        });
-        webApp.Use(async (HttpContext context, Func<Task> next) =>
-        {
-            context.SetEndpoint(new Endpoint(c => { return Task.FromResult(""); }, EndpointMetadataCollection.Empty, "Test"));
-            await next();
-        });
-        webApp.MapGet("/", (HttpContext context) =>
-        {
-            if (Task.CompletedTask.IsCompleted)
-            {
-                return Task.CompletedTask;
-            }
-            return Task.FromResult("hello world");
-        });
-    }
-}
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Analyzer.Testing;
 
 public class RequestDelegateReturnTypeAnalyzerTests
 {
