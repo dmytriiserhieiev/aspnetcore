@@ -38,6 +38,7 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
                     propertyReference.Arguments[0].Value is ILiteralOperation literalOperation &&
                     literalOperation.ConstantValue.Value is string indexerValue)
                 {
+                    // Check that the header has a matching property on IHeaderDictionary.
                     if (PropertyMapping.TryGetValue(indexerValue, out var propertyName))
                     {
                         AddDiagnosticWarning(context, propertyReference.Syntax.GetLocation(), indexerValue, propertyName);
