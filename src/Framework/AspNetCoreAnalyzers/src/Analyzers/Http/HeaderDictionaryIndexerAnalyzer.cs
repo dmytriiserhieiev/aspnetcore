@@ -33,7 +33,6 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
             {
                 if (propertyReference.Arguments.Length == 1 &&
                     propertyReference.Arguments[0].Value is ILiteralOperation literalOperation &&
-                    literalOperation.ConstantValue.HasValue &&
                     literalOperation.ConstantValue.Value is string indexerValue)
                 {
                     if (PropertyMapping.TryGetValue(indexerValue, out var propertyName))
@@ -178,29 +177,5 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
             properties.ToImmutableDictionary(),
             headerName,
             propertyName));
-    }
-
-    internal sealed class WellKnownTypes
-    {
-        public static bool TryCreate(Compilation compilation, [NotNullWhen(returnValue: true)] out WellKnownTypes? wellKnownTypes)
-        {
-            wellKnownTypes = default;
-
-            const string HeaderDictionaryInterface = "Microsoft.AspNetCore.Http.IHeaderDictionary";
-            if (compilation.GetTypeByMetadataName(HeaderDictionaryInterface) is not { } headerDictionaryInterface)
-            {
-                return false;
-            }
-
-            wellKnownTypes = new()
-            {
-                HeaderDictionaryInterface = headerDictionaryInterface
-            };
-
-            return true;
-        }
-
-        public INamedTypeSymbol HeaderDictionaryInterface { get; private init; }
-        public INamedTypeSymbol StringValues { get; private init; }
     }
 }
