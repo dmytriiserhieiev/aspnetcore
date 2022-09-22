@@ -26,11 +26,14 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
 
             var propertyReference = (IPropertyReferenceOperation)context.Operation;
             var property = propertyReference.Property;
+
+            // Check if property is the indexer on IHeaderDictionary, e.g. headers["content-type"]
             if (property.IsIndexer &&
                 property.Parameters.Length == 1 &&
                 property.Parameters[0].Type.SpecialType == SpecialType.System_String &&
                 IsIHeadersDictionaryType(property.ContainingType))
             {
+                // Get the indexer string argument.
                 if (propertyReference.Arguments.Length == 1 &&
                     propertyReference.Arguments[0].Value is ILiteralOperation literalOperation &&
                     literalOperation.ConstantValue.Value is string indexerValue)
@@ -70,7 +73,8 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
         };
     }
 
-    private static readonly Dictionary<string, string> PropertyMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    // Internal for unit tests
+    internal static readonly Dictionary<string, string> PropertyMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["Accept"] = "Accept",
         ["Accept-Charset"] = "AcceptCharset",
@@ -153,7 +157,6 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
         ["Vary"] = "Vary",
         ["Via"] = "Via",
         ["Warning"] = "Warning",
-        ["Sec-WebSocket-Protocol"] = "WebSocketSubProtocols",
         ["WWW-Authenticate"] = "WWWAuthenticate",
         ["X-Content-Type-Options"] = "XContentTypeOptions",
         ["X-Frame-Options"] = "XFrameOptions",
