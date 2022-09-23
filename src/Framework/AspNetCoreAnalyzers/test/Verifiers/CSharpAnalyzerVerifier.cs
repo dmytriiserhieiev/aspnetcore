@@ -45,6 +45,8 @@ public static partial class CSharpAnalyzerVerifier<TAnalyzer>
     internal static ReferenceAssemblies GetReferenceAssemblies()
     {
         return ReferenceAssemblies.Net.Net70.AddAssemblies(ImmutableArray.Create(
+            TrimAssemblyExtension(typeof(Microsoft.AspNetCore.Mvc.ModelBinding.IBinderTypeProviderMetadata).Assembly.Location),
+            TrimAssemblyExtension(typeof(Microsoft.AspNetCore.Mvc.BindAttribute).Assembly.Location),
             TrimAssemblyExtension(typeof(Microsoft.AspNetCore.Hosting.WebHostBuilderExtensions).Assembly.Location),
             TrimAssemblyExtension(typeof(Microsoft.Extensions.Hosting.IHostBuilder).Assembly.Location),
             TrimAssemblyExtension(typeof(Microsoft.Extensions.Hosting.HostingHostBuilderExtensions).Assembly.Location),

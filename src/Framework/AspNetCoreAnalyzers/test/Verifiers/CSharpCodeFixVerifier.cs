@@ -60,13 +60,14 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
             // support top-level programs in the tests. Otherwise,
             // the test infra will assume we are trying to build a library.
             TestState = { Sources = { source }, OutputKind = OutputKind.ConsoleApplication },
-            FixedCode = fixedSource,
+            FixedState = { Sources = { fixedSource } },
             ReferenceAssemblies = CSharpAnalyzerVerifier<TAnalyzer>.GetReferenceAssemblies(),
         };
 
         if (usageSource != null)
         {
             test.TestState.Sources.Add(usageSource);
+            test.FixedState.Sources.Add(usageSource);
         }
 
         test.ExpectedDiagnostics.AddRange(expected);
