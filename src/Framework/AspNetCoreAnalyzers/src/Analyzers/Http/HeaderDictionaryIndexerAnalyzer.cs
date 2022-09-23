@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -22,8 +21,6 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterOperationAction(context =>
         {
-            var compilation = context.Compilation;
-
             var propertyReference = (IPropertyReferenceOperation)context.Operation;
             var property = propertyReference.Property;
 
@@ -75,6 +72,8 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
     }
 
     // Internal for unit tests
+    // Note that this dictionary should be kept in sync with properties in IHeaderDictionary.Keyed.cs
+    // Key = property name, Value = header name
     internal static readonly Dictionary<string, string> PropertyMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["Accept"] = "Accept",
@@ -169,16 +168,14 @@ public partial class HeaderDictionaryIndexerAnalyzer : DiagnosticAnalyzer
 
     private static void AddDiagnosticWarning(OperationAnalysisContext context, Location location, string headerName, string propertyName)
     {
-        var properties = new Dictionary<string, string>
-        {
-            ["HeaderName"] = headerName,
-            ["ResolvedPropertyName"] = propertyName,
-        };
+        var propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
+        propertiesBuilder.Add("HeaderName", headerName);
+        propertiesBuilder.Add("ResolvedPropertyName", propertyName);
 
         context.ReportDiagnostic(Diagnostic.Create(
             DiagnosticDescriptors.UseHeaderDictionaryPropertiesInsteadOfIndexer,
             location,
-            properties.ToImmutableDictionary(),
+            propertiesBuilder.ToImmutable(),
             headerName,
             propertyName));
     }

@@ -52,18 +52,22 @@ public static partial class CSharpCodeFixVerifier<TAnalyzer, TCodeFix>
         => await VerifyCodeFixAsync(source, new[] { expected }, fixedSource);
 
     /// <inheritdoc cref="CodeFixVerifier{TAnalyzer, TCodeFix, TTest, TVerifier}.VerifyCodeFixAsync(string, DiagnosticResult[], string)"/>
-    public static async Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource)
+    public static async Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource, string usageSource = null)
     {
         var test = new CSharpCodeFixTest<TAnalyzer, TCodeFix, XUnitVerifier>
         {
-            TestCode = source,
             // We need to set the output type to an exe to properly
             // support top-level programs in the tests. Otherwise,
             // the test infra will assume we are trying to build a library.
-            TestState = { OutputKind = OutputKind.ConsoleApplication },
+            TestState = { Sources = { source }, OutputKind = OutputKind.ConsoleApplication },
             FixedCode = fixedSource,
             ReferenceAssemblies = CSharpAnalyzerVerifier<TAnalyzer>.GetReferenceAssemblies(),
         };
+
+        if (usageSource != null)
+        {
+            test.TestState.Sources.Add(usageSource);
+        }
 
         test.ExpectedDiagnostics.AddRange(expected);
         await test.RunAsync(CancellationToken.None);
